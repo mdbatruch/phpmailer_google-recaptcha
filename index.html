@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Form</title>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src='https://www.google.com/recaptcha/api.js'></script>
+</head>
+<body>
+<div class="container">
+  <h1>Test Form</h1>
+  <form id="contactForm" method="post" action="process.php" class="contact-form">
+    <div class="alert alert-danger display-error" style="display: none">
+    </div>
+    <div class="form-group">
+      <div class="controls">
+        <input type="text" id="contact_firstname" class="form-control" name="name" placeholder="Name">
+        <div id="name-warning"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="controls">
+        <input type="email" class="email form-control" id="email" name="email" placeholder="Email">
+        <div id="email-warning"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="controls">
+        <input type="text" id="msg_subject" class="form-control" name="msg_subject" placeholder="Subject">
+        <div id="subject-warning"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="controls">
+        <textarea id="message" rows="7" name="msg_text" placeholder="Message" class="form-control"></textarea>
+        <div id="message-warning"></div>
+      </div>  
+    </div>
+    <button type="submit" id="submit" class="btn btn-success g-recaptcha" name="submit" data-sitekey="PUBLIC_KEY"
+    data-callback="submitForm" data-size="invisible">
+    <i class="fa fa-check"></i> Send Message</button>
+    <div id="captcha-warning"></div>
+  </form>
+  <div id="form-message" style="margin-top: 20px;"></div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+    
+$(document).ready(function() {
+
+      $('#contactForm').submit(function(e){
+        e.preventDefault();
+          
+        });
+    
+  });
+          
+          
+function submitForm(token) {
+    grecaptcha.execute();
+    var name = $("#contact_firstname").val();
+    var email = $("#email").val();
+    var msg_subject = $("#msg_subject").val();
+    var msg_text = $("#message").val();
+    var recaptcha = token;
+
+    $.ajax({
+        type: "POST",
+        url: "process.php",
+        dataType: "json",
+        data: {name:name, email:email, msg_subject:msg_subject, msg_text:msg_text, grecaptcha:recaptcha},
+    }).done(function(data){
+
+        if (!data.success) {
+
+                if (data.errors.name) {
+
+                    $('#name-warning').html('<div class="help-block input-alert-error">' + data.errors.name + '</div>');
+                } else {
+                    $('#name-warning').html('');
+                }
+
+                if (data.errors.email) {
+
+                    $('#email-warning').html('<div class="help-block input-alert-error">' + data.errors.email + '</div>');
+                } else {
+                    $('#email-warning').html('');
+                }
+
+                if (data.errors.msg_subject) {
+
+                    $('#subject-warning').html('<div class="help-block input-alert-error">' + data.errors.msg_subject + '</div>');
+                } else {
+                    $('#subject-warning').html('');
+                }
+
+                if (data.errors.msg_text) {
+
+                    $('#message-warning').html('<div class="help-block input-alert-error">' + data.errors.msg_text + '</div>');
+                } else {
+                    $('#message-warning').html('');
+                }
+
+                if (data.errors.grecaptcha) {
+
+                    $('#message-warning').html('<div class="help-block input-alert-error">' + data.errors.grecaptcha + '</div>');
+                } else {
+                    $('#captcha-warning').html('');
+                }
+            
+                $('#form-message').html('<div class="alert alert-danger">' + data.message + '</div>');
+            
+            } else {
+
+                $('.help-block').remove();
+
+                $('#form-message').html('<div class="alert alert-success">' + data.message + '</div>');
+
+                $('#contactForm').trigger("reset");
+            }
+        
+            grecaptcha.reset();
+    });
+
+  }
+</script>
+</html>
