@@ -3,7 +3,8 @@
 require 'recaptcha.php';
 use Phelium\Component\reCAPTCHA;
 
-use PHPMailer;
+require 'mail/class.smtp.php';
+require 'mail/class.phpmailer.php';
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -53,7 +54,6 @@ if(!empty($errors)) {
         $data['message']  = 'There was an error with your form. Please Review.';
 } else {
 
-            require_once('mail/PHPMailerAutoload.php');
 			$mail = new PHPMailer;
             
 			$mail->IsSMTP();
@@ -62,8 +62,8 @@ if(!empty($errors)) {
 			$mail->SMTPAuth = true;
 			$mail->Username = "SMTP_USERNAME";
 			$mail->Password = "SMTP_PASSWORD";
-            $mail->SMTPSecure = 'tls';
-            $mail->Port = 587;
+            $mail->SMTPSecure = 'DEFINE EITHER TLS OR SSL';
+            $mail->Port = "DEFINE PORT NUMBER AS A NUMBER NOT STRING";
 			$mail->From = "FROM_EMAIL"; //<-- do not fake
 			$mail->FromName = 'FROM NAME';
 			$mail->AddAddress('ADDRESS_TO_SEND_TO');
